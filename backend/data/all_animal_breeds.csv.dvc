@@ -1,0 +1,5 @@
+outs:
+- md5: a238f9bb36e7d4e9d037dbd57d3898d6
+  size: 48439
+  hash: md5
+  path: all_animal_breeds.csv
