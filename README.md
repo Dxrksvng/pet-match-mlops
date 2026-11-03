@@ -1,4 +1,35 @@
-# 🤖 Pet Match MLOps: โปรเจกต์ผู้ช่วยแนะนำและค้นหาสัตว์เลี้ยง
+<div align="center">
+
+# Pet Match MLOps
+
+**A Thai-language AI assistant that recommends pets for your lifestyle with RAG.**
+
+![LLM GPT-4o-mini](https://img.shields.io/badge/LLM-GPT--4o--mini-10A37F?style=for-the-badge&logo=openai&logoColor=white) ![Retrieval FAISS RAG](https://img.shields.io/badge/Retrieval-FAISS_RAG-0467DF?style=for-the-badge) ![Backend FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white) ![UI Gradio](https://img.shields.io/badge/UI-Gradio-F97316?style=for-the-badge)
+
+</div>
+
+## Tech stack
+
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=py,fastapi,docker,github&perline=10" alt="Tech stack" />
+</p>
+
+## Architecture
+
+```mermaid
+flowchart LR
+    U(["User"]) --> FE["Frontend\nGradio"]
+    FE <-->|"REST"| BE["Backend\nFastAPI"]
+    BE --> Q["Q&A mode\n10 lifestyle questions"]
+    BE --> C["Chatbot mode\nGPT-4o-mini, chat history"]
+    Q --> RAG["RAG retrieval\nOpenAI embeddings + FAISS"]
+    RAG --> CSV[("all_animal_breeds.csv")]
+    C --> RAG
+    RAG --> R["Breed recommendations"]
+    R --> FE
+```
+
+---
 
 ## 📝 ภาพรวม (Overview)
 
