@@ -4,7 +4,7 @@
 
 ![LLM GPT-4o-mini](https://img.shields.io/badge/LLM-GPT--4o--mini-10A37F?style=for-the-badge&logo=openai&logoColor=white) ![Retrieval FAISS](https://img.shields.io/badge/Retrieval-FAISS_RAG-0467DF?style=for-the-badge) ![Backend FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white) ![UI Gradio](https://img.shields.io/badge/UI-Gradio-F97316?style=for-the-badge) ![Data DVC](https://img.shields.io/badge/Data-DVC_(GCS)-945DD6?style=for-the-badge&logo=dvc&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-> **Status: course/MLOps prototype.** It works as a two-service demo; there are no tests, no CI and no evaluation in the repo. See [Security and limitations](#security-and-limitations) before deploying; notably, two credential files are tracked in git.
+> **Status: course/MLOps prototype.** It works as a two-service demo; there are no tests, no CI and no evaluation in the repo. See [Security and limitations](#security-and-limitations) before deploying; local credentials should be supplied outside Git.
 
 Last updated: 2026-11-03.
 
@@ -12,7 +12,7 @@ Last updated: 2026-11-03.
 
 ## Thai summary (สรุปภาษาไทย)
 
-Pet Match คือผู้ช่วยแนะนำสายพันธุ์สัตว์เลี้ยงที่เหมาะกับไลฟ์สไตล์ มี 2 โหมด: (1) Q&A ตอบคำถาม 10 ข้อ (ขนาด ความขี้เล่น การเข้ากับเด็ก การดูแลขน ความฉลาด ฯลฯ) แล้วระบบสรุปความต้องการเป็นข้อความส่งไปให้ backend ค้นข้อมูลจาก `all_animal_breeds.csv` ด้วย RAG (OpenAI embeddings + FAISS) และให้ `gpt-4o-mini` แนะนำ 3 สายพันธุ์พร้อมเหตุผลเป็นภาษาไทย (2) Chatbot คุยอิสระ ถ้าข้อความมีคำเช่น "อยากได้" หรือ "i want" จะส่งเข้า RAG ถ้าไม่ใช่จะคุยทั่วไป ไฟล์ข้อมูลจัดการด้วย DVC (remote บน Google Cloud Storage) หมายเหตุ: เป็นโปรโตไทป์ และมีไฟล์ credential ถูก track ใน git (ดูหัวข้อ Security and limitations)
+Pet Match คือผู้ช่วยแนะนำสายพันธุ์สัตว์เลี้ยงที่เหมาะกับไลฟ์สไตล์ มี 2 โหมด: (1) Q&A ตอบคำถาม 10 ข้อ (ขนาด ความขี้เล่น การเข้ากับเด็ก การดูแลขน ความฉลาด ฯลฯ) แล้วระบบสรุปความต้องการเป็นข้อความส่งไปให้ backend ค้นข้อมูลจาก `all_animal_breeds.csv` ด้วย RAG (OpenAI embeddings + FAISS) และให้ `gpt-4o-mini` แนะนำ 3 สายพันธุ์พร้อมเหตุผลเป็นภาษาไทย (2) Chatbot คุยอิสระ ถ้าข้อความมีคำเช่น "อยากได้" หรือ "i want" จะส่งเข้า RAG ถ้าไม่ใช่จะคุยทั่วไป ไฟล์ข้อมูลจัดการด้วย DVC (remote บน Google Cloud Storage) หมายเหตุ: เป็นโปรโตไทป์ และต้องตั้งค่า credential ไว้นอก Git
 
 ---
 
@@ -44,7 +44,7 @@ pet-match-mlops/
 │   │   └── .gitignore                keeps the CSV itself out of git
 │   ├── requirements.txt              pinned dependencies
 │   ├── Dockerfile                    python:3.10.5-slim, runs backend.py
-│   └── .env                          tracked in git (see Security)
+│   └── .env.example                  environment variable template
 ├── frontend/
 │   ├── frontend.py                   Gradio UI: Q&A mode and Chatbot mode
 │   ├── logo.gif
@@ -52,7 +52,7 @@ pet-match-mlops/
 │   └── Dockerfile                    python:3.10.5-slim, EXPOSE 7860
 ├── .dvc/config                       DVC remote: gs://mlops-project-dvc-bucket
 ├── .dvcignore
-└── service_account.json              placeholder file tracked in git (see Security)
+└── service_account.example.json      noncredential template
 ```
 
 ---
@@ -218,7 +218,7 @@ None in the repository: no unit tests, no retrieval or answer-quality evaluation
 
 | Issue | Detail |
 |---|---|
-| Tracked credential files | `backend/.env` and `service_account.json` are tracked in git. I did not open `.env`. `service_account.json` is a 24-byte placeholder. Treat anything that was ever in `.env` as exposed: rotate it, `git rm --cached`, add both to `.gitignore`, and scan history with gitleaks. |
+| Local credentials | Copy `backend/.env.example` to `backend/.env` and provide your own API key. Store the GCP service account as `service_account.json` locally. Both real files are ignored by Git. |
 | Unauthenticated API | `/recommend` and `/chat` have no auth, rate limit or input-size limit; each call costs OpenAI tokens. |
 | Index rebuilt on every start | All CSV rows are embedded at boot (extra latency and cost); the index is not persisted. |
 | Prompt handling | Chat history is interpolated into a system prompt with an f-string, so user text can influence instructions (prompt injection). |
